@@ -52,5 +52,6 @@ All operations are handled using structured data and file handling to ensure org
 
 ## 👨‍💻 Author
 
-Your Name
+Amna Afzal
+
 
