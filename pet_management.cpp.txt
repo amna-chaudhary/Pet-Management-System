@@ -1,0 +1,500 @@
+#include<iostream>
+#include<string>
+#include<fstream>
+#include<vector>
+using namespace std;
+struct Customer{
+    int ID; 
+    string name;
+    string contact;
+};
+struct HealthRecord{
+    string healthStatus;
+    string allergies;
+    string lastVisitDate;
+};
+struct Vaccination{
+    string vaccineName;
+    string vaccineDate;
+    string dueDate;
+};
+struct Pet{
+    int ID;  
+    string name;
+    string type;
+    string breed;
+    int age;
+    double price;
+    Customer customer;
+    HealthRecord healthRecord;
+    Vaccination vaccination; 
+};
+
+const string fileName= "pets.txt";  
+vector <Pet> pets; 
+
+void saveToFile();
+
+void addDataToCustomer(Pet &newPet){
+    cin.ignore();
+    cout<<"Enter customers ID : ";
+    cin>> newPet.customer.ID;
+    
+    while(newPet.customer.ID < 1000 || newPet.customer.ID > 9999){
+        cout<<"Invalid ID. Please re-enter unique 4-digit ID : ";
+        cin>> newPet.customer.ID;
+    }
+    cin.ignore();
+    cout<<"Enter the customer's name : ";
+    getline(cin,newPet.customer.name);
+    cout<<"Enter the contact number (11 Digits) : ";
+    getline(cin,newPet.customer.contact);
+    
+    while(newPet.customer.contact.length() != 11){
+        cout<<"Contact Number can only be of 11 digits. Please re_enter : ";
+        getline(cin,newPet.customer.contact);
+    }
+
+}
+
+void addDataToHealthRecord(Pet &newPet){
+    cout<<"Enter Health status : ";
+    getline(cin,newPet.healthRecord.healthStatus);
+    cout<<"Enter allergies : ";
+    getline(cin,newPet.healthRecord.allergies);
+    cout<<"Enter the last visit date (DD/MM/YYYY) : ";
+    getline(cin,newPet.healthRecord.lastVisitDate);
+
+}
+
+void addDataToVaccination(Pet &newPet){
+    string needsVaccination;
+    cout<<"Does the pet need vaccination? (yes/no) : ";
+    cin>> needsVaccination;
+
+    if(needsVaccination == "Yes" || needsVaccination == "yes"){
+        cin.ignore();
+        cout<<"Enter the name of vaccination : ";
+        getline(cin,newPet.vaccination.vaccineName);
+        cout<<"Enter the date of vaccination (DD/MM/YYYY) : ";
+        getline(cin,newPet.vaccination.vaccineDate);
+        cout<<"Enter the due date of vaccination (DD/MM/YYYY) : ";
+        getline(cin,newPet.vaccination.dueDate);
+
+    }else{ 
+        newPet.vaccination.vaccineName = "None";
+        newPet.vaccination.vaccineDate = "N/A";
+        newPet.vaccination.dueDate = "N/A";
+    }
+
+}
+
+void addDataToPet(){
+    Pet newPet;
+
+    cout<<"\nGive an ID to the pet : ";
+    cin>> newPet.ID;
+    while(newPet.ID < 1000 || newPet.ID > 9999){
+        cout<<"Invalid ID. Please re-enter 4-digit ID : ";
+    cin>> newPet.ID;
+
+    }
+    bool isUnique= false;
+    while(!isUnique){
+        isUnique=true;
+    for(const auto &pet : pets){
+        if(pet.ID == newPet.ID){
+            cout<<"ID already exist. PLease enter a unique ID : ";
+    cin>> newPet.ID;
+            isUnique= false;
+            break;
+        }
+    }
+}
+    while(newPet.ID < 0 ){
+        cout<<" Id cannot be negative. Please Enter again : ";
+    cin>> newPet.ID;
+    }
+
+    cout<<"Enter pet name : ";
+    cin.ignore();
+    getline(cin, newPet.name);
+    cout<<"Enter pet type (dog,cat etc) : ";
+    getline(cin, newPet.type);
+    cout<<"Enter the breed of Pet : ";
+    getline(cin, newPet.breed);
+    cout<<"Enter pet age : ";
+    cin>> newPet.age;
+    while(newPet.age < 0){
+        cout<<"Age cannot be negative. Please re-enter : ";
+        cin>> newPet.age;
+    }
+    cout<<"Enter the price of the pet : ";
+    cin >> newPet.price;
+    while(newPet.price < 0){
+        cout<<"Price cannot be negative. Please re-enter : ";
+    cin >> newPet.price;
+    }
+    
+    addDataToCustomer(newPet);
+    addDataToHealthRecord(newPet);
+    addDataToVaccination(newPet);
+    pets.push_back(newPet); 
+    cout<<"-----Pet's data added successfully!-----\n\n";
+    saveToFile();   
+
+}
+
+void petDetailMenu(int index){
+    const Pet &pet = pets[index];
+    cout<<"Pet's ID :              "<<pet.ID<<endl;
+    cout<<"Pet name :              "<<pet.name<<endl;
+    cout<<"Pet type :              "<<pet.type<<endl;
+    cout<<"Pet age :               "<<pet.age<<endl;
+    cout<<"Pet price :             "<<pet.price<<endl;
+    cout<<"Customer's ID           "<<pet.customer.ID<<endl;
+    cout<<"Customer Name :         "<<pet.customer.name<<endl;
+    cout<<"Contact Number :        "<<pet.customer.contact<<endl;
+    cout<<"Health Status :         "<<pet.healthRecord.healthStatus<<endl;
+    cout<<"Allergies :             "<<pet.healthRecord.allergies<<endl;
+    cout<<"Last visit date :       "<<pet.healthRecord.lastVisitDate<<endl;
+    cout<<"Vaccination name :      "<<pet.vaccination.vaccineName<<endl;
+    cout<<"Last date :             "<<pet.vaccination.vaccineDate<<endl;
+    cout<<"Next due date :         "<<pet.vaccination.dueDate<<endl;
+}
+
+void displayPet(){
+    if(pets.empty()){
+        cout<<"No pets to display.\n";
+        return;
+    }
+
+cout<<"\n--------------Pet Records--------------"<<endl;
+    for(int i=0;i<pets.size();i++){
+        cout<<"      Pet " << i + 1 << ":\n";
+        petDetailMenu(i);
+        cout<<"---------------------------------------"<<endl;
+    }
+
+}
+ 
+void searchPet(){
+    if(pets.empty()){
+        cout<<"No pets to display.\n";
+        return;
+    }
+
+    int searchChoice;
+    cout<<"\nSearch by:\n 1. Name\n 2. ID\n";
+    cout<<" Enter your choice : ";
+    cin >> searchChoice;
+    
+    if(searchChoice== 1 ){
+        string searchName;
+        cout << "Enter the name of the pet to search: ";
+        cin.ignore();
+        getline(cin, searchName);
+
+    bool found= false;
+    for(int i=0;i<pets.size();i++){
+        if(pets[i].name==searchName){
+            cout<<"Pet found! "<<endl;
+            petDetailMenu(i);
+            found= true;
+            break;
+    }
+}
+    if(!found){
+        cout<<"No pet found by the name / "<<searchName<<" /. "<<endl;
+    }
+
+}else 
+    if(searchChoice==2){
+        int searchID;
+        cout<<"Enter the ID to search : ";
+        cin>> searchID;
+
+    bool found = false;
+    for(int i=0;i<pets.size();i++){
+        if(pets[i].ID==searchID){
+            cout<<"Pet found! "<<endl;
+            petDetailMenu(i);
+            found= true;
+            break;
+    }
+}
+    if(!found){
+        cout<<" No pet found by ID / "<<searchID<<" /. "<<endl;
+    }
+
+    }else{
+    cout<<" Invalid search option. \n"<<endl;
+    }
+
+}
+
+void saveToFile(){
+    ofstream outFile(fileName,ios::trunc);  
+    if(!outFile){
+        cout<< "Error saving to file.\n";
+        return;
+    }
+
+    outFile <<"\n---------------- Pet Management System----------------\n"<<endl;
+    outFile<<" Pet count : "<<pets.size()<<"\n";
+    for(int i=0;i<pets.size();i++){
+        outFile<<"\n    Pet : "<<i+1;
+        outFile <<" ID :               "<<pets[i].ID<<endl
+                <<" Name :             "<<pets[i].name<<endl
+                <<" Type :             "<<pets[i].type<<endl
+                <<" Breed :            "<<pets[i].breed<<endl
+                <<" Age :              "<<pets[i].age<<endl
+                <<" Price :            "<<pets[i].price<<endl
+                <<" Customer's ID :    "<<pets[i].customer.ID<<endl
+                <<" Customer's Name :  "<<pets[i].customer.name<<endl
+                <<" Contact :          "<<pets[i].customer.contact<<endl
+                <<" Health status :    "<<pets[i].healthRecord.healthStatus<<endl
+                <<" Allergies :        "<<pets[i].healthRecord.allergies<<endl
+                <<" Last visit date :  "<<pets[i].healthRecord.lastVisitDate<<endl
+                <<" Vacciantion :      "<<pets[i].vaccination.vaccineName<<endl
+                <<" Vaccine Date :     "<<pets[i].vaccination.vaccineDate<<endl
+                <<" Due date :         "<<pets[i].vaccination.dueDate<<endl;
+    }
+
+    outFile.close();
+        cout<< "Data saved successfully!\n";
+}
+
+void loadFromFile(){
+    ifstream inFile(fileName);
+    if(!inFile){
+        cout<<"No data file found.\n";
+        return;
+    }
+
+    int size;
+    inFile>>size;
+    inFile.ignore();
+
+    for (int i = 0; i < size; i++) {
+        Pet newPet;
+        inFile>>newPet.ID;
+        inFile.ignore();
+        getline(inFile,newPet.name);
+        getline(inFile,newPet.type);
+        getline(inFile,newPet.breed);
+        inFile>>newPet.age;
+        inFile.ignore();
+        inFile>>newPet.price;
+        inFile.ignore();
+        inFile>>newPet.customer.ID;
+        getline(inFile,newPet.customer.name);
+        getline(inFile,newPet.customer.contact);
+        getline(inFile,newPet.healthRecord.healthStatus);
+        getline(inFile,newPet.healthRecord.allergies);
+        getline(inFile,newPet.healthRecord.lastVisitDate);
+        getline(inFile,newPet.vaccination.vaccineName);
+        getline(inFile,newPet.vaccination.vaccineDate);
+        getline(inFile,newPet.vaccination.dueDate);
+        pets.push_back(newPet);
+    }
+    inFile.close();
+    cout << "Data loaded successfully.\n";
+}
+
+void updatePet(){
+    if(pets.empty()){
+        cout<<"No file available!\n";
+        return;
+    }
+
+    int petID;
+    cout<<"Enter the ID of a pet you want to update : ";
+    cin>> petID;
+    
+        for(auto &pet : pets){
+        if(petID == pet.ID){
+            cout<<"    Pet found!\nCurrent Details : "<<endl;
+            petDetailMenu(&pet - &pets[0]);
+
+            int updates;
+            cout<<"How many updates would you like to  make : ";
+            cin>> updates;
+
+            for(int i=0;i<updates;i++){
+                cout<<"Update : "<< i+1;
+                cout<<"\nWhat do you want to update? ";
+                cout<<"\n1. Pet Name\n"
+                    <<"2. Pet Type\n"
+                    <<"3. Pet Breed\n"
+                    <<"4. Pet Age\n"
+                    <<"5. Pet Price\n"
+                    <<"6. Customer Details\n"
+                    <<"7. Health Details\n"
+                    <<"8. Vaccination Details\n"
+                    <<"9. Cancel\n";
+                
+            int choice;
+            cout<<"Enter your choice : ";
+            cin>>choice;
+
+            switch(choice){
+                case 1:
+                    cout<<"Enter the new name for the pet : ";
+                    cin>>pet.name;
+                    break;
+                case 2:
+                    cout<<"Enter the new type : ";
+                    cin>>pet.type;
+                    break;
+                case 3:
+                    cout<<"Enter the new breed of pet : ";
+                    cin>>pet.breed;
+                    break;
+                case 4:
+                    cout<<"Enter the new age : ";
+                    cin>>pet.age;
+                    while (pet.age < 0) {
+                        cout << "Age cannot be negative. Please re-enter : ";
+                        cin >> pet.age;
+                    }
+                    break;
+                case 5:
+                    cout<<"Enter the new price of pet : ";
+                    cin>>pet.price;
+                    while (pet.price < 0) {
+                        cout << "Price cannot be negative. Please re-enter : ";
+                        cin >> pet.price;
+                    }
+                    break;
+                case 6:
+                    addDataToCustomer(pet);
+                    break;
+                case 7:
+                    addDataToHealthRecord(pet);
+                    break;
+                case 8:
+                    addDataToVaccination(pet);
+                    break;
+                case 9:
+                    cout<<"Updated Data Canceled.\n";
+                    break;
+                default:
+                    cout<<"Invalid choice!\n";
+                    break;
+                }
+            }
+            cout<<"Updated details : "<<endl;
+            petDetailMenu(&pet - &pets[0]); 
+
+            string choice;
+            cout<<"Do you wnat to save these changings into the file (yes/no) : ";
+            cin>> choice;
+            if(choice == "Yes" || choice == "yes"){
+                saveToFile();
+            }else{
+                cout<<" Changes discarded.\n";
+            }
+            return;
+        }
+
+    }
+    cout<<"\nNo pet found by ID / "<<petID<<" /.\n"<<endl;
+}
+
+void deletePet(){
+    if(pets.empty()){
+        cerr<<"Error! No file available.\n";
+        return;
+    }
+
+    int petID;
+    cout<<"Enter the ID of a pet you want to remove : ";
+    cin>> petID;
+
+    for(auto &pet : pets){
+        if(petID == pet.ID){
+            cout<<"    Pet found!\nDetails of the pet : ";
+            petDetailMenu(&pet - &pets[0]);
+
+    string choice;
+    cout<<"Are you sure you want to delete this pet (yes/no) : ";
+    cin>> choice;
+
+            if(choice == "yes" || choice== "Yes"){
+                pets.erase(pets.begin() + (&pet - &pets[0]));
+                cout<<"Pet deleted successfully!\n";
+                saveToFile();
+            }else{
+                cout<<"Deletion canceled!\n";
+            }
+            return;
+        }else{
+            cout<<"\nNo pet found by ID / "<<petID<<" /.\n"<<endl;
+        }
+    }
+    
+}
+
+int main(){
+    loadFromFile(); 
+    int choice = 0;
+    while(choice!=6){
+        cout<<"---------------- Pet Management System----------------"<<endl;
+        cout<<" 1. Add Pet. "<<endl;
+        cout<<" 2. Display Pet. "<<endl;
+        cout<<" 3. Search Pet. "<<endl;
+        cout<<" 4. Update Pet. "<<endl;
+        cout<<" 5. Delete Pet. "<<endl;
+        cout<<" 6. Exit. "<<endl;
+        cout<<"------------------------------------------------------"<<endl;
+
+        cout<<"Enter your choice : ";
+        cin>> choice;
+
+        switch(choice){
+            case 1 :
+                addDataToPet();
+                system("pause");
+                system("cls");
+                break;
+
+            case 2:
+                displayPet();
+                system("pause");
+                system("cls");
+                break;
+
+            case 3:
+                searchPet();
+                system("pause");
+                system("cls");
+                break;
+
+            case 4:
+                updatePet();
+                system("pause");
+                system("cls");
+                break;
+
+            case 5: 
+                deletePet();
+                system("pause");
+                system("cls");
+                break;
+
+            case 6:
+                cout << "Exiting the program. Thank you!\n";
+                system("pause");
+                break;
+
+            default :
+                cout << "Invalid choice. Please try again.\n";
+                system("pause");
+                system("cls");
+                break;
+                
+        }
+    }
+    return 0;
+}
